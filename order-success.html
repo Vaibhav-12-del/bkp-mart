@@ -7,7 +7,6 @@
 <title>Order Confirmed - BKP Mart</title>
 
 <style>
-
 *{
   box-sizing:border-box;
   margin:0;
@@ -20,8 +19,6 @@ body{
   color:#222;
   min-height:100vh;
 }
-
-/* HEADER */
 
 header{
   background:#fff;
@@ -36,17 +33,11 @@ header{
   font-weight:800;
 }
 
-
-/* MAIN */
-
 .container{
   max-width:520px;
   margin:0 auto;
   padding:25px 15px 40px;
 }
-
-
-/* SUCCESS CARD */
 
 .success-box{
   background:#fff;
@@ -55,9 +46,6 @@ header{
   text-align:center;
   box-shadow:0 4px 18px rgba(0,0,0,.07);
 }
-
-
-/* CHECK */
 
 .check{
   width:82px;
@@ -74,9 +62,6 @@ header{
   box-shadow:0 5px 15px rgba(10,173,75,.25);
 }
 
-
-/* TITLE */
-
 h1{
   font-size:25px;
   margin-bottom:10px;
@@ -89,9 +74,6 @@ h1{
   line-height:1.6;
   margin-bottom:22px;
 }
-
-
-/* ORDER CARD */
 
 .order-card{
   background:#f7faf8;
@@ -130,9 +112,6 @@ h1{
   color:#0b8f3c;
 }
 
-
-/* BUTTONS */
-
 .home-btn,
 .shop-btn{
   display:block;
@@ -148,7 +127,6 @@ h1{
   background:#0b8f3c;
   color:#fff;
   border:none;
-  cursor:pointer;
 }
 
 .shop-btn{
@@ -157,9 +135,6 @@ h1{
   color:#0b8f3c;
   border:1px solid #0b8f3c;
 }
-
-
-/* INFO */
 
 .info{
   margin-top:20px;
@@ -171,20 +146,13 @@ h1{
   line-height:1.5;
 }
 
-
-/* FOOTER */
-
 .small-text{
   margin-top:18px;
   color:#999;
   font-size:12px;
 }
 
-
-/* MOBILE */
-
 @media(max-width:600px){
-
   .container{
     padding:20px 12px 35px;
   }
@@ -196,35 +164,25 @@ h1{
   h1{
     font-size:23px;
   }
-
 }
-
 </style>
 </head>
 
 <body>
 
 <header>
-
   <div class="logo">
     🛒 BKP Mart
   </div>
-
 </header>
-
 
 <div class="container">
 
   <div class="success-box">
 
-    <!-- SUCCESS ICON -->
-
     <div class="check">
       ✓
     </div>
-
-
-    <!-- MESSAGE -->
 
     <h1>
       Order Placed Successfully!
@@ -236,13 +194,9 @@ h1{
       Your order has been received successfully.
     </p>
 
-
-    <!-- ORDER DETAILS -->
-
     <div class="order-card">
 
       <div class="order-row">
-
         <span class="order-label">
           Order ID
         </span>
@@ -253,44 +207,29 @@ h1{
         >
           Loading...
         </span>
-
       </div>
 
-
       <div class="order-row">
-
         <span class="order-label">
           Status
         </span>
 
-        <span
-          class="order-value cod"
-        >
+        <span class="order-value cod">
           Order Confirmed
         </span>
-
       </div>
 
-
       <div class="order-row">
-
         <span class="order-label">
           Payment
         </span>
 
-        <span
-          class="order-value cod"
-        >
+        <span class="order-value cod">
           Cash on Delivery
         </span>
-
       </div>
 
-
-      <div
-        class="order-row"
-        id="totalRow"
-      >
+      <div class="order-row">
 
         <span class="order-label">
           Total
@@ -307,9 +246,6 @@ h1{
 
     </div>
 
-
-    <!-- DELIVERY INFO -->
-
     <div class="info">
 
       🚚 Your order will be delivered to the
@@ -322,9 +258,6 @@ h1{
 
     </div>
 
-
-    <!-- BUTTONS -->
-
     <a
       href="index.html"
       class="home-btn"
@@ -332,14 +265,12 @@ h1{
       🛍️ Continue Shopping
     </a>
 
-
     <a
       href="index.html"
       class="shop-btn"
     >
       🏠 Go to Home
     </a>
-
 
     <p class="small-text">
       BKP Mart • Quick & Easy Shopping
@@ -349,103 +280,138 @@ h1{
 
 </div>
 
-
 <script>
 
-/* =========================
-   LOAD LAST ORDER
-========================= */
+function getValidNumber(value){
+
+  if(value === undefined || value === null){
+    return null;
+  }
+
+  if(typeof value === "string"){
+    value = value.replace(/[₹,\s]/g,"");
+  }
+
+  const number = Number(value);
+
+  return Number.isFinite(number) ? number : null;
+}
+
+
+function getOrderTotal(order){
+
+  /*
+    Priority:
+    1. final_total
+    2. grand_total
+    3. total
+    4. total_amount
+    5. orderTotal
+    6. amount
+
+    This prevents the success page from
+    accidentally showing subtotal instead
+    of the final checkout amount.
+  */
+
+  const possibleTotals = [
+    order.final_total,
+    order.grand_total,
+    order.total,
+    order.total_amount,
+    order.orderTotal,
+    order.amount
+  ];
+
+  for(const value of possibleTotals){
+
+    const number = getValidNumber(value);
+
+    if(number !== null){
+      return number;
+    }
+
+  }
+
+  return 0;
+}
+
 
 function loadOrder(){
 
   const savedOrder =
-    localStorage.getItem(
-      "bkp_last_order"
-    );
-
+    localStorage.getItem("bkp_last_order");
 
   if(!savedOrder){
 
-    document.getElementById(
-      "orderId"
-    ).textContent =
+    document.getElementById("orderId").textContent =
       "BKP-MART";
 
+    document.getElementById("orderTotal").textContent =
+      "₹0.00";
 
     return;
-
   }
-
 
   try{
 
     const order =
-      JSON.parse(
-        savedOrder
-      );
+      JSON.parse(savedOrder);
 
 
     /* ORDER ID */
 
-    let orderId =
+    const orderId =
       order.id ||
       order.order_id ||
       order.uuid ||
+      order.orderId ||
       "";
 
-
-    if(orderId){
-
-      document.getElementById(
-        "orderId"
-      ).textContent =
-        String(orderId);
-
-    }else{
-
-      document.getElementById(
-        "orderId"
-      ).textContent =
-        "BKP-MART";
-
-    }
+    document.getElementById("orderId").textContent =
+      orderId
+      ? String(orderId)
+      : "BKP-MART";
 
 
-    /* TOTAL */
+    /* FINAL TOTAL */
 
     const total =
-      Number(
-        order.total_amount || 0
-      );
+      getOrderTotal(order);
 
 
-    document.getElementById(
-      "orderTotal"
-    ).textContent =
+    document.getElementById("orderTotal").textContent =
       "₹" + total.toFixed(2);
 
 
-  }catch(error){
+    console.log(
+      "BKP Mart order:",
+      order
+    );
 
     console.log(
+      "Final displayed total:",
+      total
+    );
+
+  }catch(error){
+
+    console.error(
       "Order display error:",
       error
     );
 
-
-    document.getElementById(
-      "orderId"
-    ).textContent =
+    document.getElementById("orderId").textContent =
       "BKP-MART";
 
+    document.getElementById("orderTotal").textContent =
+      "₹0.00";
   }
 
 }
 
 
-/* =========================
-   START
-========================= */
+/* START */
 
 loadOrder();
 
