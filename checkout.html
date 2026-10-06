@@ -1,0 +1,1178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BKP Mart - Checkout</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f5f7f6;
+  color:#222;
+}
+
+/* HEADER */
+
+header{
+  background:#fff;
+  padding:14px 16px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  box-shadow:0 2px 10px rgba(0,0,0,.08);
+  position:sticky;
+  top:0;
+  z-index:20;
+}
+
+.logo{
+  color:#0b8f3c;
+  font-size:22px;
+  font-weight:800;
+}
+
+.header-buttons{
+  display:flex;
+  gap:7px;
+}
+
+.header-buttons a{
+  text-decoration:none;
+  color:#0b8f3c;
+  background:#edf8f1;
+  padding:9px 11px;
+  border-radius:9px;
+  font-size:13px;
+  font-weight:bold;
+}
+
+/* DELIVERY BAR */
+
+.delivery-bar{
+  background:#0b8f3c;
+  color:white;
+  text-align:center;
+  padding:10px 12px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+/* MAIN */
+
+.container{
+  max-width:650px;
+  margin:auto;
+  padding:18px 14px 40px;
+}
+
+.page-title{
+  font-size:26px;
+  margin-bottom:16px;
+}
+
+/* BOX */
+
+.box{
+  background:white;
+  padding:19px;
+  border-radius:16px;
+  margin-bottom:15px;
+  box-shadow:0 3px 12px rgba(0,0,0,.06);
+}
+
+.box h3{
+  font-size:19px;
+  margin-bottom:15px;
+}
+
+/* FORM */
+
+label{
+  display:block;
+  margin-top:14px;
+  margin-bottom:7px;
+  font-size:14px;
+  font-weight:bold;
+}
+
+input,
+textarea{
+  width:100%;
+  padding:14px;
+  border:1px solid #d8d8d8;
+  border-radius:10px;
+  font-size:16px;
+  outline:none;
+  background:#fff;
+}
+
+input:focus,
+textarea:focus{
+  border-color:#0b8f3c;
+  box-shadow:0 0 0 3px rgba(11,143,60,.08);
+}
+
+textarea{
+  min-height:95px;
+  resize:vertical;
+}
+
+/* COD */
+
+.cod-box{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  background:#f0faf4;
+  border:1px solid #ccebd7;
+  border-radius:12px;
+  padding:14px;
+  margin-top:18px;
+}
+
+.cod-icon{
+  font-size:27px;
+}
+
+.cod-title{
+  font-weight:bold;
+  color:#087a32;
+  font-size:16px;
+}
+
+.cod-text{
+  color:#666;
+  font-size:13px;
+  margin-top:3px;
+}
+
+/* SUMMARY */
+
+.summary-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:9px 0;
+  font-size:15px;
+}
+
+.free{
+  color:#0b8f3c;
+  font-weight:bold;
+}
+
+.total{
+  border-top:1px solid #ddd;
+  margin-top:8px;
+  padding-top:14px;
+  font-size:21px;
+  font-weight:bold;
+}
+
+.total span:last-child{
+  color:#0b8f3c;
+}
+
+/* BUTTON */
+
+.place-order{
+  width:100%;
+  border:none;
+  background:#0b8f3c;
+  color:white;
+  padding:15px;
+  border-radius:11px;
+  font-size:17px;
+  font-weight:bold;
+  cursor:pointer;
+  box-shadow:0 4px 10px rgba(11,143,60,.20);
+}
+
+.place-order:active{
+  transform:scale(.99);
+}
+
+.place-order:disabled{
+  background:#999;
+  cursor:not-allowed;
+  box-shadow:none;
+}
+
+/* BACK */
+
+.back{
+  display:block;
+  text-align:center;
+  margin-top:14px;
+  color:#0b8f3c;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+/* ERROR */
+
+.error{
+  display:none;
+  background:#fff0f0;
+  border:1px solid #ffcaca;
+  color:#c40000;
+  padding:11px;
+  border-radius:9px;
+  margin-top:15px;
+  font-size:14px;
+}
+
+/* SECURITY NOTE */
+
+.safe-note{
+  text-align:center;
+  color:#777;
+  font-size:12px;
+  margin-top:14px;
+}
+
+/* MOBILE */
+
+@media(max-width:600px){
+
+  .logo{
+    font-size:20px;
+  }
+
+  .header-buttons a{
+    padding:8px 9px;
+    font-size:12px;
+  }
+
+  .container{
+    padding:15px 12px 35px;
+  }
+
+  .page-title{
+    font-size:24px;
+  }
+
+  .box{
+    padding:16px;
+    border-radius:15px;
+  }
+
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+  <div class="logo">
+    🛒 BKP Mart
+  </div>
+
+  <div class="header-buttons">
+
+    <a href="cart.html">
+      🛒 Cart
+    </a>
+
+    <a href="index.html">
+      🏠 Home
+    </a>
+
+  </div>
+
+</header>
+
+
+<!-- DELIVERY BAR -->
+
+<div class="delivery-bar">
+  🚚 Fast Delivery • Cash on Delivery Available
+</div>
+
+
+<div class="container">
+
+  <h1 class="page-title">
+    📦 Checkout
+  </h1>
+
+
+  <!-- DELIVERY DETAILS -->
+
+  <div class="box">
+
+    <h3>
+      📍 Delivery Details
+    </h3>
+
+
+    <label for="mobile">
+      Mobile Number
+    </label>
+
+    <input
+      type="tel"
+      id="mobile"
+      maxlength="10"
+      inputmode="numeric"
+      placeholder="Enter 10 digit mobile number"
+    >
+
+
+    <label for="name">
+      Name
+    </label>
+
+    <input
+      type="text"
+      id="name"
+      maxlength="80"
+      placeholder="Enter your name"
+    >
+
+
+    <label for="address">
+      Address
+    </label>
+
+    <textarea
+      id="address"
+      maxlength="300"
+      placeholder="House no., street, locality"
+    ></textarea>
+
+
+    <label for="city">
+      City
+    </label>
+
+    <input
+      type="text"
+      id="city"
+      maxlength="60"
+      placeholder="Enter city"
+    >
+
+
+    <label for="pincode">
+      Pincode
+    </label>
+
+    <input
+      type="tel"
+      id="pincode"
+      maxlength="6"
+      inputmode="numeric"
+      placeholder="Enter 6 digit pincode"
+    >
+
+
+    <!-- COD -->
+
+    <div class="cod-box">
+
+      <div class="cod-icon">
+        💵
+      </div>
+
+      <div>
+
+        <div class="cod-title">
+          Cash on Delivery
+        </div>
+
+        <div class="cod-text">
+          Pay when your order is delivered
+        </div>
+
+      </div>
+
+    </div>
+
+
+    <div
+      id="error"
+      class="error"
+    ></div>
+
+  </div>
+
+
+  <!-- ORDER SUMMARY -->
+
+  <div class="box">
+
+    <h3>
+      🛍️ Order Summary
+    </h3>
+
+
+    <div class="summary-row">
+
+      <span>
+        Items
+      </span>
+
+      <strong id="itemCount">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="summary-row">
+
+      <span>
+        Subtotal
+      </span>
+
+      <strong>
+        ₹<span id="subtotal">0.00</span>
+      </strong>
+
+    </div>
+
+
+    <div class="summary-row">
+
+      <span>
+        Delivery
+      </span>
+
+      <strong id="delivery">
+        ₹0.00
+      </strong>
+
+    </div>
+
+
+    <div class="summary-row total">
+
+      <span>
+        Total
+      </span>
+
+      <span>
+        ₹<span id="total">0.00</span>
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <!-- PLACE ORDER -->
+
+  <div class="box">
+
+    <button
+      id="placeOrderBtn"
+      class="place-order"
+      onclick="placeOrder()"
+    >
+      🛍️ Place Order • COD
+    </button>
+
+
+    <a
+      href="cart.html"
+      class="back"
+    >
+      ← Back to Cart
+    </a>
+
+
+    <div class="safe-note">
+      🔒 Your order details are securely processed.
+    </div>
+
+  </div>
+
+</div>
+
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+  "https://vtjxxpuhkylwsddgnkav.supabase.co";
+
+const SUPABASE_KEY =
+  "sb_publishable_MkVBcTXqwhlesjtRg-hJtQ_UVfoMyeE";
+
+const supabaseClient =
+  supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_KEY
+  );
+
+
+/* =========================
+   DELIVERY SETTINGS
+========================= */
+
+let deliveryCharge = 40;
+
+let freeDeliveryEnabled = true;
+
+let freeDeliveryAbove = 499;
+
+
+/* =========================
+   LOAD DELIVERY SETTINGS
+========================= */
+
+async function loadDeliverySettings(){
+
+  try{
+
+    const { data, error } =
+      await supabaseClient
+        .from("settings")
+        .select(
+          "delivery_charge,free_delivery_enabled,free_delivery_above"
+        )
+        .limit(1)
+        .single();
+
+
+    if(error){
+
+      console.log(
+        "Settings error:",
+        error
+      );
+
+      displayOrder();
+
+      return;
+
+    }
+
+
+    if(data){
+
+      deliveryCharge =
+        Number(
+          data.delivery_charge ?? 40
+        );
+
+      freeDeliveryEnabled =
+        data.free_delivery_enabled ?? true;
+
+      freeDeliveryAbove =
+        Number(
+          data.free_delivery_above ?? 499
+        );
+
+    }
+
+
+    displayOrder();
+
+  }catch(error){
+
+    console.log(error);
+
+    displayOrder();
+
+  }
+
+}
+
+
+/* =========================
+   CART
+========================= */
+
+function getCart(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem("bkp_cart")
+    ) || [];
+
+  }catch(error){
+
+    return [];
+
+  }
+
+}
+
+
+/* =========================
+   SUBTOTAL
+========================= */
+
+function calculateSubtotal(){
+
+  const cart =
+    getCart();
+
+  let subtotal = 0;
+
+  cart.forEach(item => {
+
+    const price =
+      Number(item.price || 0);
+
+    const quantity =
+      Number(
+        item.quantity ||
+        item.qty ||
+        1
+      );
+
+    subtotal +=
+      price * quantity;
+
+  });
+
+  return subtotal;
+
+}
+
+
+/* =========================
+   ITEM COUNT
+========================= */
+
+function calculateItemCount(){
+
+  const cart =
+    getCart();
+
+  let count = 0;
+
+  cart.forEach(item => {
+
+    count += Number(
+      item.quantity ||
+      item.qty ||
+      1
+    );
+
+  });
+
+  return count;
+
+}
+
+
+/* =========================
+   DELIVERY
+========================= */
+
+function calculateDelivery(subtotal){
+
+  if(!freeDeliveryEnabled){
+
+    return deliveryCharge;
+
+  }
+
+  if(subtotal >= freeDeliveryAbove){
+
+    return 0;
+
+  }
+
+  return deliveryCharge;
+
+}
+
+
+/* =========================
+   DISPLAY ORDER
+========================= */
+
+function displayOrder(){
+
+  const subtotal =
+    calculateSubtotal();
+
+  const delivery =
+    calculateDelivery(
+      subtotal
+    );
+
+  const total =
+    subtotal + delivery;
+
+  const itemCount =
+    calculateItemCount();
+
+
+  document.getElementById(
+    "itemCount"
+  ).textContent =
+    itemCount;
+
+
+  document.getElementById(
+    "subtotal"
+  ).textContent =
+    subtotal.toFixed(2);
+
+
+  if(delivery === 0){
+
+    document.getElementById(
+      "delivery"
+    ).innerHTML =
+      '<span class="free">FREE</span>';
+
+  }else{
+
+    document.getElementById(
+      "delivery"
+    ).textContent =
+      "₹" + delivery.toFixed(2);
+
+  }
+
+
+  document.getElementById(
+    "total"
+  ).textContent =
+    total.toFixed(2);
+
+}
+
+
+/* =========================
+   LOAD SAVED CUSTOMER
+========================= */
+
+async function loadSavedMobile(){
+
+  const savedMobile =
+    localStorage.getItem(
+      "bkp_customer_mobile"
+    );
+
+
+  if(!savedMobile){
+
+    return;
+
+  }
+
+
+  document.getElementById(
+    "mobile"
+  ).value =
+    savedMobile;
+
+
+  try{
+
+    const { data, error } =
+      await supabaseClient
+        .from("customers")
+        .select("*")
+        .eq(
+          "mobile",
+          savedMobile
+        )
+        .limit(1)
+        .maybeSingle();
+
+
+    if(error){
+
+      console.log(error);
+
+      return;
+
+    }
+
+
+    if(data){
+
+      document.getElementById(
+        "name"
+      ).value =
+        data.name || "";
+
+
+      document.getElementById(
+        "address"
+      ).value =
+        data.address || "";
+
+
+      document.getElementById(
+        "city"
+      ).value =
+        data.city || "";
+
+
+      document.getElementById(
+        "pincode"
+      ).value =
+        data.pincode || "";
+
+    }
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
+}
+
+
+/* =========================
+   SAVE CUSTOMER
+========================= */
+
+async function saveCustomer(
+  mobile,
+  name,
+  address,
+  city,
+  pincode
+){
+
+  try{
+
+    const { error } =
+      await supabaseClient
+        .from("customers")
+        .upsert(
+          {
+            mobile: mobile,
+            name: name,
+            address: address,
+            city: city,
+            pincode: pincode
+          },
+          {
+            onConflict: "mobile"
+          }
+        );
+
+
+    if(error){
+
+      console.log(
+        "Customer save error:",
+        error
+      );
+
+    }
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
+}
+
+
+/* =========================
+   PLACE ORDER
+========================= */
+
+async function placeOrder(){
+
+  const errorBox =
+    document.getElementById(
+      "error"
+    );
+
+
+  errorBox.style.display =
+    "none";
+
+  errorBox.textContent =
+    "";
+
+
+  const button =
+    document.getElementById(
+      "placeOrderBtn"
+    );
+
+
+  const mobile =
+    document.getElementById(
+      "mobile"
+    ).value.trim();
+
+
+  const name =
+    document.getElementById(
+      "name"
+    ).value.trim();
+
+
+  const address =
+    document.getElementById(
+      "address"
+    ).value.trim();
+
+
+  const city =
+    document.getElementById(
+      "city"
+    ).value.trim();
+
+
+  const pincode =
+    document.getElementById(
+      "pincode"
+    ).value.trim();
+
+
+  /* VALIDATION */
+
+  function showError(message){
+
+    errorBox.textContent =
+      "⚠️ " + message;
+
+    errorBox.style.display =
+      "block";
+
+  }
+
+
+  if(!/^[0-9]{10}$/.test(mobile)){
+
+    showError(
+      "Please enter a valid 10 digit mobile number."
+    );
+
+    return;
+
+  }
+
+
+  if(name.length < 2){
+
+    showError(
+      "Please enter your name."
+    );
+
+    return;
+
+  }
+
+
+  if(address.length < 5){
+
+    showError(
+      "Please enter your complete address."
+    );
+
+    return;
+
+  }
+
+
+  if(city.length < 2){
+
+    showError(
+      "Please enter your city."
+    );
+
+    return;
+
+  }
+
+
+  if(!/^[0-9]{6}$/.test(pincode)){
+
+    showError(
+      "Please enter a valid 6 digit pincode."
+    );
+
+    return;
+
+  }
+
+
+  const cart =
+    getCart();
+
+
+  if(cart.length === 0){
+
+    showError(
+      "Your cart is empty. Please add products first."
+    );
+
+    return;
+
+  }
+
+
+  const subtotal =
+    calculateSubtotal();
+
+
+  const delivery =
+    calculateDelivery(
+      subtotal
+    );
+
+
+  const total =
+    subtotal + delivery;
+
+
+  /* PREVENT DOUBLE ORDER */
+
+  button.disabled = true;
+
+  button.textContent =
+    "⏳ Placing Order...";
+
+
+  try{
+
+    /* SAVE CUSTOMER */
+
+    localStorage.setItem(
+      "bkp_customer_mobile",
+      mobile
+    );
+
+
+    await saveCustomer(
+      mobile,
+      name,
+      address,
+      city,
+      pincode
+    );
+
+
+    /* CREATE ORDER */
+
+    const {
+      data: newOrder,
+      error
+    } =
+      await supabaseClient
+        .from("orders")
+        .insert({
+
+          customer_name:
+            name,
+
+          customer_mobile:
+            mobile,
+
+          customer_address:
+            address,
+
+          customer_city:
+            city,
+
+          customer_pincode:
+            pincode,
+
+          items:
+            cart,
+
+          total_amount:
+            total,
+
+          status:
+            "pending"
+
+        })
+        .select()
+        .single();
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    /* SAVE LAST ORDER */
+
+    localStorage.setItem(
+      "bkp_last_order",
+      JSON.stringify(
+        newOrder
+      )
+    );
+
+
+    /* CLEAR CART */
+
+    localStorage.removeItem(
+      "bkp_cart"
+    );
+
+
+    /* SUCCESS PAGE */
+
+    window.location.href =
+      "order-success.html";
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showError(
+      "Order place nahi ho paya. Please try again."
+    );
+
+
+    button.disabled =
+      false;
+
+    button.textContent =
+      "🛍️ Place Order • COD";
+
+  }
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+loadDeliverySettings();
+
+loadSavedMobile();
+
+displayOrder();
+
+</script>
+
+</body>
+</html>

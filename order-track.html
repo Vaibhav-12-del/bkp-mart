@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>BKP Mart - Track Order</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *{
+      box-sizing:border-box;
+      margin:0;
+      padding:0;
+      font-family:Arial, sans-serif;
+    }
+
+    body{
+      background:#f5f6f7;
+      color:#222;
+    }
+
+    header{
+      background:#0c8f3d;
+      color:white;
+      padding:18px 16px;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
+    .header-inner{
+      max-width:600px;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      gap:12px;
+    }
+
+    .back{
+      font-size:25px;
+      cursor:pointer;
+    }
+
+    header h1{
+      font-size:21px;
+    }
+
+    .container{
+      max-width:600px;
+      margin:25px auto;
+      padding:0 15px;
+    }
+
+    .card{
+      background:white;
+      border-radius:16px;
+      padding:20px;
+      margin-bottom:16px;
+      box-shadow:0 3px 12px rgba(0,0,0,.07);
+    }
+
+    .card h2{
+      font-size:18px;
+      margin-bottom:15px;
+    }
+
+    input{
+      width:100%;
+      padding:14px;
+      border:1px solid #ddd;
+      border-radius:10px;
+      font-size:15px;
+      outline:none;
+    }
+
+    input:focus{
+      border-color:#0c8f3d;
+    }
+
+    button{
+      width:100%;
+      margin-top:12px;
+      padding:14px;
+      border:none;
+      border-radius:10px;
+      background:#0c8f3d;
+      color:white;
+      font-size:16px;
+      font-weight:bold;
+      cursor:pointer;
+    }
+
+    button:active{
+      transform:scale(.98);
+    }
+
+    .order-box{
+      display:none;
+    }
+
+    .order-id{
+      background:#eef9f1;
+      padding:13px;
+      border-radius:10px;
+      margin-bottom:15px;
+    }
+
+    .order-id span{
+      display:block;
+      font-size:12px;
+      color:#666;
+      margin-bottom:5px;
+    }
+
+    .order-id strong{
+      color:#0c8f3d;
+      word-break:break-all;
+    }
+
+    .status{
+      text-align:center;
+      padding:15px;
+      border-radius:12px;
+      background:#fff8df;
+      margin-bottom:20px;
+    }
+
+    .status-title{
+      font-size:13px;
+      color:#777;
+      margin-bottom:6px;
+    }
+
+    .status-value{
+      font-size:21px;
+      font-weight:bold;
+      color:#0c8f3d;
+    }
+
+    .steps{
+      display:flex;
+      justify-content:space-between;
+      position:relative;
+      margin:25px 0;
+    }
+
+    .steps:before{
+      content:"";
+      position:absolute;
+      top:17px;
+      left:9%;
+      right:9%;
+      height:4px;
+      background:#ddd;
+      z-index:0;
+    }
+
+    .step{
+      width:25%;
+      text-align:center;
+      position:relative;
+      z-index:1;
+    }
+
+    .circle{
+      width:35px;
+      height:35px;
+      border-radius:50%;
+      background:#ddd;
+      margin:auto;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:white;
+      font-weight:bold;
+    }
+
+    .step.active .circle{
+      background:#0c8f3d;
+    }
+
+    .step-text{
+      font-size:11px;
+      margin-top:7px;
+      color:#777;
+    }
+
+    .step.active .step-text{
+      color:#0c8f3d;
+      font-weight:bold;
+    }
+
+    .info-row{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      padding:10px 0;
+      border-bottom:1px solid #eee;
+      font-size:14px;
+    }
+
+    .info-row:last-child{
+      border-bottom:none;
+    }
+
+    .label{
+      color:#777;
+    }
+
+    .value{
+      font-weight:bold;
+      text-align:right;
+    }
+
+    .items{
+      margin-top:10px;
+    }
+
+    .item{
+      padding:10px 0;
+      border-bottom:1px solid #eee;
+    }
+
+    .item:last-child{
+      border-bottom:none;
+    }
+
+    .item-name{
+      font-weight:bold;
+      font-size:14px;
+    }
+
+    .item-detail{
+      color:#777;
+      font-size:13px;
+      margin-top:4px;
+    }
+
+    .error{
+      display:none;
+      background:#fff0f0;
+      color:#d00000;
+      padding:13px;
+      border-radius:10px;
+      margin-top:12px;
+      font-size:14px;
+    }
+
+    .empty{
+      text-align:center;
+      padding:20px;
+      color:#777;
+    }
+
+    .refresh{
+      background:#222;
+      margin-top:5px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="back" onclick="goBack()">‹</div>
+    <h1>Track Your Order</h1>
+  </div>
+</header>
+
+<div class="container">
+
+  <div class="card">
+    <h2>🔎 Enter Order ID</h2>
+
+    <input
+      type="text"
+      id="orderId"
+      placeholder="Enter your Order ID"
+    >
+
+    <button onclick="trackOrder()">
+      Track Order
+    </button>
+
+    <div class="error" id="errorBox"></div>
+  </div>
+
+
+  <div class="card order-box" id="orderBox">
+
+    <div class="order-id">
+      <span>Order ID</span>
+      <strong id="showOrderId">-</strong>
+    </div>
+
+    <div class="status">
+      <div class="status-title">Current Order Status</div>
+      <div class="status-value" id="statusText">Pending</div>
+    </div>
+
+    <div class="steps">
+
+      <div class="step" id="step1">
+        <div class="circle">✓</div>
+        <div class="step-text">Placed</div>
+      </div>
+
+      <div class="step" id="step2">
+        <div class="circle">✓</div>
+        <div class="step-text">Confirmed</div>
+      </div>
+
+      <div class="step" id="step3">
+        <div class="circle">✓</div>
+        <div class="step-text">Out for<br>Delivery</div>
+      </div>
+
+      <div class="step" id="step4">
+        <div class="circle">✓</div>
+        <div class="step-text">Delivered</div>
+      </div>
+
+    </div>
+
+
+    <div class="card" style="box-shadow:none;padding:0;margin:0;">
+
+      <h2>Order Details</h2>
+
+      <div class="info-row">
+        <span class="label">Customer</span>
+        <span class="value" id="customerName">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Mobile</span>
+        <span class="value" id="customerMobile">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Address</span>
+        <span class="value" id="customerAddress">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">City</span>
+        <span class="value" id="customerCity">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Pincode</span>
+        <span class="value" id="customerPincode">-</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Payment</span>
+        <span class="value">Cash on Delivery</span>
+      </div>
+
+      <div class="info-row">
+        <span class="label">Total Amount</span>
+        <span class="value" id="totalAmount">₹0</span>
+      </div>
+
+    </div>
+
+
+    <div class="card" style="box-shadow:none;padding:0;margin-top:22px;">
+
+      <h2>🛒 Items</h2>
+
+      <div class="items" id="itemsList"></div>
+
+    </div>
+
+    <button class="refresh" onclick="trackOrder()">
+      🔄 Refresh Status
+    </button>
+
+  </div>
+
+</div>
+
+
+<script>
+
+const SUPABASE_URL =
+"https://vtjxxpuhkylwsddgnkav.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_MkVBcTXqwhlesjtRg-hJtQ_UVfoMyeE";
+
+const db = supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+// -----------------------------
+// LOAD LAST ORDER
+// -----------------------------
+
+window.addEventListener("DOMContentLoaded", () => {
+
+  try {
+
+    const saved =
+      localStorage.getItem("bkp_last_order");
+
+    if(saved){
+
+      const order = JSON.parse(saved);
+
+      if(order && order.id){
+
+        document.getElementById("orderId").value =
+          order.id;
+
+        showLocalOrder(order);
+
+      }
+
+    }
+
+  } catch(e){
+
+    console.log(e);
+
+  }
+
+});
+
+
+// -----------------------------
+// TRACK ORDER
+// -----------------------------
+
+async function trackOrder(){
+
+  const orderId =
+    document.getElementById("orderId").value.trim();
+
+  const errorBox =
+    document.getElementById("errorBox");
+
+  errorBox.style.display = "none";
+
+  if(!orderId){
+
+    showError("Please enter your Order ID.");
+
+    return;
+
+  }
+
+
+  // First check locally saved order
+  try {
+
+    const saved =
+      localStorage.getItem("bkp_last_order");
+
+    if(saved){
+
+      const localOrder =
+        JSON.parse(saved);
+
+      if(
+        localOrder &&
+        String(localOrder.id) === String(orderId)
+      ){
+
+        showLocalOrder(localOrder);
+
+        return;
+
+      }
+
+    }
+
+  } catch(e){}
+
+
+  /*
+    Current Supabase RLS protects customer orders.
+
+    Therefore this page cannot safely fetch
+    another customer's order directly.
+
+    For now we show the saved order from this device.
+  */
+
+  showError(
+    "Order not found on this device. Please use the Order ID from your order confirmation."
+  );
+
+}
+
+
+// -----------------------------
+// SHOW LOCAL ORDER
+// -----------------------------
+
+function showLocalOrder(order){
+
+  document.getElementById("orderBox").style.display =
+    "block";
+
+  document.getElementById("showOrderId").textContent =
+    order.id || "-";
+
+  document.getElementById("customerName").textContent =
+    order.customer_name || "-";
+
+  document.getElementById("customerMobile").textContent =
+    order.customer_mobile || "-";
+
+  document.getElementById("customerAddress").textContent =
+    order.customer_address || "-";
+
+  document.getElementById("customerCity").textContent =
+    order.customer_city || "-";
+
+  document.getElementById("customerPincode").textContent =
+    order.customer_pincode || "-";
+
+  document.getElementById("totalAmount").textContent =
+    "₹" + Number(order.total_amount || 0).toFixed(0);
+
+
+  const status =
+    String(order.status || "pending").toLowerCase();
+
+  updateStatus(status);
+
+  showItems(order.items);
+
+}
+
+
+// -----------------------------
+// STATUS
+// -----------------------------
+
+function updateStatus(status){
+
+  const statusText =
+    document.getElementById("statusText");
+
+  const steps = [
+    document.getElementById("step1"),
+    document.getElementById("step2"),
+    document.getElementById("step3"),
+    document.getElementById("step4")
+  ];
+
+  steps.forEach(step =>
+    step.classList.remove("active")
+  );
+
+
+  let level = 1;
+  let text = "Order Placed";
+
+
+  if(status === "pending"){
+
+    level = 1;
+    text = "Order Placed";
+
+  }
+
+  else if(status === "confirmed"){
+
+    level = 2;
+    text = "Order Confirmed";
+
+  }
+
+  else if(status === "out_for_delivery"){
+
+    level = 3;
+    text = "Out for Delivery";
+
+  }
+
+  else if(status === "delivered"){
+
+    level = 4;
+    text = "Delivered";
+
+  }
+
+  else if(status === "cancelled"){
+
+    level = 1;
+    text = "Order Cancelled";
+
+  }
+
+
+  for(let i=0;i<level;i++){
+
+    steps[i].classList.add("active");
+
+  }
+
+
+  statusText.textContent = text;
+
+
+  if(status === "cancelled"){
+
+    statusText.style.color = "#d00000";
+
+  }else{
+
+    statusText.style.color = "#0c8f3d";
+
+  }
+
+}
+
+
+// -----------------------------
+// ITEMS
+// -----------------------------
+
+function showItems(items){
+
+  const list =
+    document.getElementById("itemsList");
+
+  list.innerHTML = "";
+
+
+  if(!items){
+
+    list.innerHTML =
+      '<div class="empty">No item details available.</div>';
+
+    return;
+
+  }
+
+
+  let data = items;
+
+
+  try{
+
+    if(typeof items === "string"){
+
+      data = JSON.parse(items);
+
+    }
+
+  }catch(e){
+
+    list.innerHTML =
+      '<div class="empty">Item details unavailable.</div>';
+
+    return;
+
+  }
+
+
+  if(!Array.isArray(data)){
+
+    list.innerHTML =
+      '<div class="empty">Item details unavailable.</div>';
+
+    return;
+
+  }
+
+
+  data.forEach(item => {
+
+    const name =
+      item.name ||
+      item.Name ||
+      item.product_name ||
+      "Product";
+
+    const qty =
+      item.quantity ||
+      item.qty ||
+      1;
+
+    const price =
+      Number(
+        item.price ||
+        item.Price ||
+        0
+      );
+
+
+    const div =
+      document.createElement("div");
+
+    div.className = "item";
+
+    div.innerHTML = `
+      <div class="item-name">
+        ${escapeHtml(name)}
+      </div>
+
+      <div class="item-detail">
+        Qty: ${qty} × ₹${price.toFixed(0)}
+      </div>
+    `;
+
+    list.appendChild(div);
+
+  });
+
+}
+
+
+// -----------------------------
+// ESCAPE HTML
+// -----------------------------
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+// -----------------------------
+// ERROR
+// -----------------------------
+
+function showError(message){
+
+  const box =
+    document.getElementById("errorBox");
+
+  box.textContent = message;
+
+  box.style.display = "block";
+
+  document.getElementById("orderBox").style.display =
+    "none";
+
+}
+
+
+// -----------------------------
+// BACK
+// -----------------------------
+
+function goBack(){
+
+  if(document.referrer){
+
+    history.back();
+
+  }else{
+
+    window.location.href = "index.html";
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>

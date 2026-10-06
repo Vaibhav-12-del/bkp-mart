@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BKP Mart - Product Details</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  background:#f5f6f7;
+  color:#222;
+  padding-bottom:30px;
+}
+
+/* HEADER */
+
+header{
+  background:#0c8f3d;
+  color:white;
+  padding:15px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.header-inner{
+  max-width:700px;
+  margin:auto;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+}
+
+.left{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+
+.back{
+  font-size:30px;
+  cursor:pointer;
+  line-height:1;
+}
+
+.logo{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.cart{
+  position:relative;
+  color:white;
+  text-decoration:none;
+  background:rgba(255,255,255,.15);
+  padding:10px 13px;
+  border-radius:10px;
+  font-weight:bold;
+}
+
+.cart-count{
+  position:absolute;
+  right:-7px;
+  top:-7px;
+  width:21px;
+  height:21px;
+  background:#ff3b30;
+  border-radius:50%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:11px;
+}
+
+/* MAIN */
+
+.container{
+  max-width:700px;
+  margin:auto;
+  padding:15px;
+}
+
+.loading{
+  text-align:center;
+  padding:70px 20px;
+  color:#777;
+  font-size:20px;
+}
+
+.error{
+  display:none;
+  background:#fff0f0;
+  color:#c40000;
+  padding:20px;
+  border-radius:14px;
+  text-align:center;
+  line-height:24px;
+}
+
+.home-btn{
+  display:block;
+  margin-top:15px;
+  background:#0c8f3d;
+  color:white;
+  text-decoration:none;
+  padding:13px;
+  border-radius:10px;
+}
+
+/* PRODUCT */
+
+.product-page{
+  display:none;
+}
+
+.image-card{
+  background:white;
+  border-radius:16px;
+  padding:15px;
+  position:relative;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.product-image{
+  width:100%;
+  height:330px;
+  object-fit:contain;
+}
+
+.discount{
+  position:absolute;
+  top:15px;
+  left:15px;
+  background:#e7f8ed;
+  color:#0c8f3d;
+  padding:7px 10px;
+  border-radius:7px;
+  font-weight:bold;
+  font-size:13px;
+}
+
+.details{
+  background:white;
+  margin-top:15px;
+  padding:18px;
+  border-radius:16px;
+  box-shadow:0 2px 10px rgba(0,0,0,.06);
+}
+
+.category{
+  color:#0c8f3d;
+  font-size:13px;
+  font-weight:bold;
+  margin-bottom:7px;
+}
+
+.name{
+  font-size:23px;
+  line-height:30px;
+  font-weight:bold;
+}
+
+.price-row{
+  display:flex;
+  align-items:center;
+  gap:9px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.price{
+  font-size:26px;
+  font-weight:bold;
+}
+
+.mrp{
+  color:#888;
+  text-decoration:line-through;
+  font-size:15px;
+}
+
+.save{
+  color:#0c8f3d;
+  font-size:13px;
+  font-weight:bold;
+}
+
+.stock{
+  margin-top:12px;
+  color:#0c8f3d;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.out{
+  color:#d00000;
+}
+
+.description{
+  border-top:1px solid #eee;
+  margin-top:20px;
+  padding-top:18px;
+}
+
+.description h3{
+  margin-bottom:8px;
+  font-size:17px;
+}
+
+.description p{
+  color:#666;
+  font-size:14px;
+  line-height:22px;
+  white-space:pre-line;
+}
+
+/* QUANTITY */
+
+.quantity{
+  margin-top:20px;
+}
+
+.quantity h3{
+  font-size:16px;
+  margin-bottom:9px;
+}
+
+.quantity-box{
+  display:flex;
+  width:max-content;
+  align-items:center;
+  border:1px solid #ddd;
+  border-radius:9px;
+  overflow:hidden;
+}
+
+.quantity-box button{
+  width:42px;
+  height:40px;
+  border:0;
+  background:#f2f2f2;
+  font-size:22px;
+  cursor:pointer;
+}
+
+.quantity-box span{
+  width:45px;
+  text-align:center;
+  font-weight:bold;
+}
+
+/* BUTTONS */
+
+.buttons{
+  display:flex;
+  gap:10px;
+  margin-top:20px;
+}
+
+.add,
+.buy{
+  flex:1;
+  padding:14px 8px;
+  border-radius:10px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.add{
+  background:#e8f7ed;
+  color:#0c8f3d;
+  border:1px solid #0c8f3d;
+}
+
+.buy{
+  background:#0c8f3d;
+  color:white;
+  border:0;
+}
+
+button:disabled{
+  opacity:.5;
+  cursor:not-allowed;
+}
+
+/* RELATED PRODUCTS */
+
+.related-section{
+  margin-top:20px;
+}
+
+.related-title{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:12px;
+}
+
+.related-products{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:12px;
+}
+
+.related-card{
+  background:white;
+  border-radius:14px;
+  overflow:hidden;
+  box-shadow:0 2px 9px rgba(0,0,0,.06);
+  position:relative;
+}
+
+.related-link{
+  display:block;
+  color:inherit;
+  text-decoration:none;
+}
+
+.related-image{
+  width:100%;
+  height:160px;
+  object-fit:contain;
+  padding:8px;
+  background:white;
+}
+
+.related-info{
+  padding:10px;
+}
+
+.related-name{
+  font-size:14px;
+  font-weight:bold;
+  line-height:18px;
+  min-height:36px;
+}
+
+.related-price-row{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  margin-top:6px;
+  flex-wrap:wrap;
+}
+
+.related-price{
+  font-size:16px;
+  font-weight:bold;
+}
+
+.related-mrp{
+  font-size:12px;
+  color:#888;
+  text-decoration:line-through;
+}
+
+.related-discount{
+  position:absolute;
+  top:7px;
+  left:7px;
+  background:#e7f8ed;
+  color:#0c8f3d;
+  padding:5px 7px;
+  border-radius:6px;
+  font-size:10px;
+  font-weight:bold;
+  z-index:2;
+}
+
+.related-add{
+  width:calc(100% - 20px);
+  margin:0 10px 10px;
+  padding:9px;
+  border:none;
+  border-radius:8px;
+  background:#0c8f3d;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.related-empty{
+  grid-column:1/-1;
+  background:white;
+  border-radius:12px;
+  padding:20px;
+  text-align:center;
+  color:#777;
+}
+
+/* TOAST */
+
+.toast{
+  position:fixed;
+  bottom:25px;
+  left:50%;
+  transform:translateX(-50%) translateY(100px);
+  background:#222;
+  color:white;
+  padding:12px 18px;
+  border-radius:9px;
+  transition:.3s;
+  z-index:999;
+  white-space:nowrap;
+}
+
+.toast.show{
+  transform:translateX(-50%) translateY(0);
+}
+
+/* MOBILE */
+
+@media(max-width:380px){
+
+  .logo{
+    font-size:19px;
+  }
+
+  .product-image{
+    height:280px;
+  }
+
+  .related-image{
+    height:140px;
+  }
+
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+
+<header>
+
+  <div class="header-inner">
+
+    <div class="left">
+
+      <div
+        class="back"
+        onclick="goBack()"
+      >
+        ‹
+      </div>
+
+      <div class="logo">
+        🛒 BKP Mart
+      </div>
+
+    </div>
+
+    <a
+      href="cart.html"
+      class="cart"
+    >
+      🛒 Cart
+
+      <span
+        class="cart-count"
+        id="cartCount"
+      >
+        0
+      </span>
+
+    </a>
+
+  </div>
+
+</header>
+
+
+<div class="container">
+
+  <!-- LOADING -->
+
+  <div
+    id="loading"
+    class="loading"
+  >
+    Loading product...
+  </div>
+
+
+  <!-- ERROR -->
+
+  <div
+    id="errorBox"
+    class="error"
+  >
+
+    <div id="errorMessage">
+      Product load nahi ho pa raha.
+    </div>
+
+    <a
+      href="index.html"
+      class="home-btn"
+    >
+      Go to Home
+    </a>
+
+  </div>
+
+
+  <!-- PRODUCT -->
+
+  <div
+    id="productPage"
+    class="product-page"
+  >
+
+    <!-- IMAGE -->
+
+    <div class="image-card">
+
+      <div
+        id="discount"
+        class="discount"
+        style="display:none;"
+      ></div>
+
+      <img
+        id="productImage"
+        class="product-image"
+        src=""
+        alt="Product"
+      >
+
+    </div>
+
+
+    <!-- DETAILS -->
+
+    <div class="details">
+
+      <div
+        id="category"
+        class="category"
+      ></div>
+
+
+      <div
+        id="productName"
+        class="name"
+      ></div>
+
+
+      <div class="price-row">
+
+        <span
+          id="price"
+          class="price"
+        >
+          ₹0
+        </span>
+
+        <span
+          id="mrp"
+          class="mrp"
+        ></span>
+
+        <span
+          id="save"
+          class="save"
+        ></span>
+
+      </div>
+
+
+      <div
+        id="stock"
+        class="stock"
+      ></div>
+
+
+      <!-- DESCRIPTION -->
+
+      <div class="description">
+
+        <h3>
+          Product Description
+        </h3>
+
+        <p id="description">
+          No description available.
+        </p>
+
+      </div>
+
+
+      <!-- QUANTITY -->
+
+      <div class="quantity">
+
+        <h3>
+          Quantity
+        </h3>
+
+        <div class="quantity-box">
+
+          <button
+            onclick="changeQty(-1)"
+          >
+            −
+          </button>
+
+          <span id="qty">
+            1
+          </span>
+
+          <button
+            onclick="changeQty(1)"
+          >
+            +
+          </button>
+
+        </div>
+
+      </div>
+
+
+      <!-- BUTTONS -->
+
+      <div class="buttons">
+
+        <button
+          id="addButton"
+          class="add"
+          onclick="addToCart()"
+        >
+          🛒 Add to Cart
+        </button>
+
+        <button
+          id="buyButton"
+          class="buy"
+          onclick="buyNow()"
+        >
+          Buy Now
+        </button>
+
+      </div>
+
+    </div>
+
+
+    <!-- RELATED PRODUCTS -->
+
+    <div class="related-section">
+
+      <div class="related-title">
+        Related Products
+      </div>
+
+      <div
+        id="relatedProducts"
+        class="related-products"
+      >
+
+        <div class="related-empty">
+          Loading related products...
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+<!-- TOAST -->
+
+<div
+  id="toast"
+  class="toast"
+>
+  Added to cart 🛒
+</div>
+
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+"https://vtjxxpuhkylwsddgnkav.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_MkVBcTXqwhlesjtRg-hJtQ_UVfoMyeE";
+
+const db =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+
+/* =========================
+   VARIABLES
+========================= */
+
+let product = null;
+
+let qty = 1;
+
+
+/* =========================
+   GET PRODUCT ID
+========================= */
+
+function getProductId(){
+
+  const url =
+    new URL(window.location.href);
+
+  return url.searchParams.get("id");
+
+}
+
+
+/* =========================
+   LOAD PRODUCT
+========================= */
+
+async function loadProduct(){
+
+  const productId =
+    getProductId();
+
+
+  if(!productId){
+
+    showError(
+      "Product ID nahi mila.<br><br>" +
+      "Homepage se product open karein."
+    );
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      await db
+        .from("products")
+        .select("*")
+        .eq("id",productId)
+        .maybeSingle();
+
+
+    if(result.error){
+
+      console.error(result.error);
+
+      showError(
+        "Product load nahi ho pa raha.<br><br>" +
+        escapeHtml(
+          result.error.message
+        )
+      );
+
+      return;
+
+    }
+
+
+    if(!result.data){
+
+      showError(
+        "Product nahi mila."
+      );
+
+      return;
+
+    }
+
+
+    product =
+      result.data;
+
+
+    showProduct();
+
+
+    /* LOAD RELATED PRODUCTS */
+
+    loadRelatedProducts();
+
+
+  }catch(error){
+
+    console.error(error);
+
+    showError(
+      "Network error. Please try again."
+    );
+
+  }
+
+}
+
+
+/* =========================
+   SHOW PRODUCT
+========================= */
+
+function showProduct(){
+
+  document.getElementById(
+    "loading"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "productPage"
+  ).style.display = "block";
+
+
+  const name =
+    product.Name ||
+    product.name ||
+    "Product";
+
+
+  const price =
+    Number(product.price || 0);
+
+
+  const mrp =
+    Number(product.mrp || 0);
+
+
+  const image =
+    product.image ||
+    "https://via.placeholder.com/500x500?text=BKP+Mart";
+
+
+  document.getElementById(
+    "productName"
+  ).textContent = name;
+
+
+  document.getElementById(
+    "category"
+  ).textContent =
+    product.category || "";
+
+
+  document.getElementById(
+    "price"
+  ).textContent =
+    "₹" + price.toFixed(0);
+
+
+  document.getElementById(
+    "productImage"
+  ).src = image;
+
+
+  document.getElementById(
+    "productImage"
+  ).alt = name;
+
+
+  /* DISCOUNT */
+
+  if(mrp > price){
+
+    const discount =
+      Math.round(
+        ((mrp-price)/mrp)*100
+      );
+
+
+    document.getElementById(
+      "discount"
+    ).textContent =
+      discount + "% OFF";
+
+
+    document.getElementById(
+      "discount"
+    ).style.display = "block";
+
+
+    document.getElementById(
+      "mrp"
+    ).textContent =
+      "₹" + mrp.toFixed(0);
+
+
+    document.getElementById(
+      "save"
+    ).textContent =
+      "Save ₹" +
+      (mrp-price).toFixed(0);
+
+  }else{
+
+    document.getElementById(
+      "mrp"
+    ).style.display = "none";
+
+
+    document.getElementById(
+      "save"
+    ).style.display = "none";
+
+  }
+
+
+  /* DESCRIPTION */
+
+  document.getElementById(
+    "description"
+  ).textContent =
+    product.Description ||
+    product.description ||
+    "No description available.";
+
+
+  /* STOCK */
+
+  const stock =
+    Number(product.stock || 0);
+
+
+  const stockElement =
+    document.getElementById(
+      "stock"
+    );
+
+
+  if(stock > 0){
+
+    stockElement.textContent =
+      stock <= 5
+      ? "Only " + stock + " left in stock"
+      : "✓ In Stock";
+
+  }else{
+
+    stockElement.textContent =
+      "Out of Stock";
+
+    stockElement.classList.add(
+      "out"
+    );
+
+
+    document.getElementById(
+      "addButton"
+    ).disabled = true;
+
+
+    document.getElementById(
+      "buyButton"
+    ).disabled = true;
+
+  }
+
+
+  updateCartCount();
+
+}
+
+
+/* =========================
+   RELATED PRODUCTS
+========================= */
+
+async function loadRelatedProducts(){
+
+  const box =
+    document.getElementById(
+      "relatedProducts"
+    );
+
+
+  const category =
+    product.category;
+
+
+  if(!category){
+
+    box.innerHTML = `
+      <div class="related-empty">
+        No related products available.
+      </div>
+    `;
+
+    return;
+
+  }
+
+
+  try{
+
+    const result =
+      await db
+        .from("products")
+        .select("*")
+        .eq("category",category)
+        .neq("id",product.id)
+        .limit(6);
+
+
+    if(result.error){
+
+      console.error(
+        "Related products error:",
+        result.error
+      );
+
+
+      box.innerHTML = `
+        <div class="related-empty">
+          Related products load nahi ho pa rahe.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    const related =
+      result.data || [];
+
+
+    if(!related.length){
+
+      box.innerHTML = `
+        <div class="related-empty">
+          No related products available.
+        </div>
+      `;
+
+      return;
+
+    }
+
+
+    box.innerHTML = "";
+
+
+    related.forEach(item => {
+
+      const name =
+        item.Name ||
+        item.name ||
+        "Product";
+
+
+      const price =
+        Number(item.price || 0);
+
+
+      const mrp =
+        Number(item.mrp || 0);
+
+
+      const stock =
+        Number(item.stock || 0);
+
+
+      const image =
+        item.image ||
+        "https://via.placeholder.com/300x300?text=BKP+Mart";
+
+
+      let discount = 0;
+
+
+      if(
+        mrp > price &&
+        mrp > 0
+      ){
+
+        discount =
+          Math.round(
+            ((mrp-price)/mrp)*100
+          );
+
+      }
+
+
+      const card =
+        document.createElement(
+          "div"
+        );
+
+
+      card.className =
+        "related-card";
+
+
+      let discountHTML = "";
+
+
+      if(discount > 0){
+
+        discountHTML = `
+          <div class="related-discount">
+            ${discount}% OFF
+          </div>
+        `;
+
+      }
+
+
+      card.innerHTML = `
+
+        ${discountHTML}
+
+        <a
+          href="product.html?id=${encodeURIComponent(item.id)}"
+          class="related-link"
+        >
+
+          <img
+            class="related-image"
+            src="${escapeHtml(image)}"
+            alt="${escapeHtml(name)}"
+            onerror="this.src='https://via.placeholder.com/300x300?text=BKP+Mart'"
+          >
+
+          <div class="related-info">
+
+            <div class="related-name">
+              ${escapeHtml(name)}
+            </div>
+
+            <div class="related-price-row">
+
+              <span class="related-price">
+                ₹${price.toFixed(0)}
+              </span>
+
+              ${
+                mrp > price
+                ?
+                `
+                <span class="related-mrp">
+                  ₹${mrp.toFixed(0)}
+                </span>
+                `
+                :
+                ""
+              }
+
+            </div>
+
+          </div>
+
+        </a>
+
+
+        <button
+          class="related-add"
+          ${
+            stock <= 0
+            ? "disabled"
+            : ""
+          }
+        >
+          ${
+            stock <= 0
+            ? "Out of Stock"
+            : "Add to Cart"
+          }
+        </button>
+
+      `;
+
+
+      const addButton =
+        card.querySelector(
+          ".related-add"
+        );
+
+
+      addButton.addEventListener(
+        "click",
+        function(){
+
+          addRelatedToCart(item);
+
+        }
+      );
+
+
+      box.appendChild(card);
+
+    });
+
+
+  }catch(error){
+
+    console.error(error);
+
+
+    box.innerHTML = `
+      <div class="related-empty">
+        Related products load nahi ho pa rahe.
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =========================
+   ADD RELATED PRODUCT
+========================= */
+
+function addRelatedToCart(item){
+
+  const stock =
+    Number(item.stock || 0);
+
+
+  if(stock <= 0){
+
+    showToast(
+      "Product is out of stock"
+    );
+
+    return;
+
+  }
+
+
+  let cart =
+    getCart();
+
+
+  const existing =
+    cart.find(cartItem =>
+      String(cartItem.id) ===
+      String(item.id)
+    );
+
+
+  if(existing){
+
+    const current =
+      Number(
+        existing.quantity || 1
+      );
+
+
+    if(current >= stock){
+
+      showToast(
+        "Maximum stock: " + stock
+      );
+
+      return;
+
+    }
+
+
+    existing.quantity =
+      current + 1;
+
+  }else{
+
+    cart.push({
+
+      id:item.id,
+
+      name:
+        item.Name ||
+        item.name ||
+        "Product",
+
+      price:
+        Number(item.price || 0),
+
+      mrp:
+        Number(item.mrp || 0),
+
+      image:
+        item.image || "",
+
+      quantity:1
+
+    });
+
+  }
+
+
+  saveCart(cart);
+
+  updateCartCount();
+
+  showToast(
+    "Added to cart 🛒"
+  );
+
+}
+
+
+/* =========================
+   QUANTITY
+========================= */
+
+function changeQty(value){
+
+  if(!product) return;
+
+
+  const stock =
+    Number(product.stock || 0);
+
+
+  qty += value;
+
+
+  if(qty < 1){
+
+    qty = 1;
+
+  }
+
+
+  if(
+    stock > 0 &&
+    qty > stock
+  ){
+
+    qty = stock;
+
+
+    showToast(
+      "Maximum stock: " + stock
+    );
+
+  }
+
+
+  document.getElementById(
+    "qty"
+  ).textContent = qty;
+
+}
+
+
+/* =========================
+   CART
+========================= */
+
+function getCart(){
+
+  try{
+
+    return JSON.parse(
+      localStorage.getItem(
+        "bkp_cart"
+      ) || "[]"
+    );
+
+  }catch(e){
+
+    return [];
+
+  }
+
+}
+
+
+function saveCart(cart){
+
+  localStorage.setItem(
+    "bkp_cart",
+    JSON.stringify(cart)
+  );
+
+}
+
+
+function makeCartItem(){
+
+  return {
+
+    id:product.id,
+
+    name:
+      product.Name ||
+      product.name ||
+      "Product",
+
+    price:
+      Number(product.price || 0),
+
+    mrp:
+      Number(product.mrp || 0),
+
+    image:
+      product.image || "",
+
+    quantity:qty
+
+  };
+
+}
+
+
+/* =========================
+   ADD TO CART
+========================= */
+
+function addToCart(){
+
+  if(!product) return;
+
+
+  const stock =
+    Number(product.stock || 0);
+
+
+  if(stock <= 0){
+
+    showToast(
+      "Product is out of stock"
+    );
+
+    return;
+
+  }
+
+
+  let cart =
+    getCart();
+
+
+  const existing =
+    cart.find(item =>
+      String(item.id) ===
+      String(product.id)
+    );
+
+
+  if(existing){
+
+    const newQty =
+      Number(
+        existing.quantity || 1
+      ) + qty;
+
+
+    if(newQty > stock){
+
+      existing.quantity =
+        stock;
+
+
+      showToast(
+        "Maximum stock: " + stock
+      );
+
+    }else{
+
+      existing.quantity =
+        newQty;
+
+
+      showToast(
+        "Cart updated 🛒"
+      );
+
+    }
+
+  }else{
+
+    cart.push(
+      makeCartItem()
+    );
+
+
+    showToast(
+      "Added to cart 🛒"
+    );
+
+  }
+
+
+  saveCart(cart);
+
+  updateCartCount();
+
+}
+
+
+/* =========================
+   BUY NOW
+========================= */
+
+function buyNow(){
+
+  if(!product) return;
+
+
+  const stock =
+    Number(product.stock || 0);
+
+
+  if(stock <= 0){
+
+    showToast(
+      "Product is out of stock"
+    );
+
+    return;
+
+  }
+
+
+  let cart =
+    getCart();
+
+
+  const existing =
+    cart.find(item =>
+      String(item.id) ===
+      String(product.id)
+    );
+
+
+  if(existing){
+
+    existing.quantity =
+      qty;
+
+  }else{
+
+    cart.push(
+      makeCartItem()
+    );
+
+  }
+
+
+  saveCart(cart);
+
+  updateCartCount();
+
+
+  window.location.href =
+    "checkout.html";
+
+}
+
+
+/* =========================
+   CART COUNT
+========================= */
+
+function updateCartCount(){
+
+  const cart =
+    getCart();
+
+
+  let count = 0;
+
+
+  cart.forEach(item => {
+
+    count += Number(
+      item.quantity ||
+      item.qty ||
+      1
+    );
+
+  });
+
+
+  document.getElementById(
+    "cartCount"
+  ).textContent = count;
+
+}
+
+
+/* =========================
+   TOAST
+========================= */
+
+function showToast(message){
+
+  const toast =
+    document.getElementById(
+      "toast"
+    );
+
+
+  toast.textContent =
+    message;
+
+
+  toast.classList.add(
+    "show"
+  );
+
+
+  setTimeout(() => {
+
+    toast.classList.remove(
+      "show"
+    );
+
+  },1800);
+
+}
+
+
+/* =========================
+   ERROR
+========================= */
+
+function showError(message){
+
+  document.getElementById(
+    "loading"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "productPage"
+  ).style.display = "none";
+
+
+  document.getElementById(
+    "errorBox"
+  ).style.display = "block";
+
+
+  document.getElementById(
+    "errorMessage"
+  ).innerHTML = message;
+
+}
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+
+}
+
+
+/* =========================
+   BACK
+========================= */
+
+function goBack(){
+
+  if(document.referrer){
+
+    history.back();
+
+  }else{
+
+    window.location.href =
+      "index.html";
+
+  }
+
+}
+
+
+/* =========================
+   START
+========================= */
+
+updateCartCount();
+
+loadProduct();
+
+</script>
+
+</body>
+</html>

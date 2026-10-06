@@ -1,0 +1,2173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>BKP Mart - Admin Panel</title>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+
+body{
+  font-family:Arial,sans-serif;
+  background:#f4f6f9;
+  color:#222;
+}
+
+header{
+  background:#16a34a;
+  color:white;
+  padding:18px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.header{
+  max-width:1100px;
+  margin:auto;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:15px;
+}
+
+.logo{
+  font-size:24px;
+  font-weight:800;
+}
+
+.email{
+  font-size:13px;
+  margin-top:4px;
+  opacity:.9;
+}
+
+.logout{
+  background:white;
+  color:#15803d;
+  border:0;
+  padding:11px 17px;
+  border-radius:10px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.container{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+.section{
+  background:white;
+  padding:20px;
+  border-radius:18px;
+  margin-bottom:20px;
+  box-shadow:0 3px 15px rgba(0,0,0,.06);
+}
+
+h2{
+  margin-bottom:18px;
+  font-size:20px;
+}
+
+.grid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+}
+
+.full{
+  grid-column:1/-1;
+}
+
+label{
+  display:block;
+  font-weight:700;
+  font-size:14px;
+  margin-bottom:6px;
+}
+
+input,
+textarea,
+select{
+  width:100%;
+  padding:13px;
+  border:1px solid #ddd;
+  border-radius:10px;
+  font-size:15px;
+  outline:none;
+  background:white;
+}
+
+input:focus,
+textarea:focus,
+select:focus{
+  border-color:#16a34a;
+}
+
+textarea{
+  min-height:90px;
+  resize:vertical;
+}
+
+button{
+  cursor:pointer;
+}
+
+.btn{
+  border:0;
+  padding:12px 17px;
+  border-radius:10px;
+  font-weight:700;
+}
+
+.green{
+  background:#16a34a;
+  color:white;
+}
+
+.red{
+  background:#dc2626;
+  color:white;
+}
+
+.orange{
+  background:#f59e0b;
+  color:white;
+}
+
+.gray{
+  background:#e5e7eb;
+  color:#222;
+}
+
+.actions{
+  display:flex;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-top:16px;
+}
+
+.message{
+  display:none;
+  padding:13px;
+  border-radius:10px;
+  margin-bottom:15px;
+  font-size:14px;
+  font-weight:600;
+}
+
+.message.success{
+  display:block;
+  background:#dcfce7;
+  color:#166534;
+}
+
+.message.error{
+  display:block;
+  background:#fee2e2;
+  color:#991b1b;
+}
+
+.search{
+  margin-bottom:15px;
+}
+
+.product{
+  display:flex;
+  gap:14px;
+  align-items:center;
+  border:1px solid #e5e7eb;
+  padding:13px;
+  border-radius:13px;
+  margin-bottom:12px;
+}
+
+.product img{
+  width:75px;
+  height:75px;
+  object-fit:contain;
+  border-radius:10px;
+  background:#f8fafc;
+}
+
+.product-info{
+  flex:1;
+}
+
+.product-name{
+  font-weight:800;
+  margin-bottom:5px;
+}
+
+.meta{
+  font-size:13px;
+  color:#666;
+  line-height:1.6;
+}
+
+.product-actions{
+  display:flex;
+  gap:7px;
+  flex-wrap:wrap;
+}
+
+.product-actions button{
+  padding:8px 11px;
+  font-size:12px;
+}
+
+.stock-good{
+  color:#15803d;
+  font-weight:bold;
+}
+
+.stock-low{
+  color:#dc2626;
+  font-weight:bold;
+}
+
+.order{
+  border:1px solid #e5e7eb;
+  border-radius:14px;
+  padding:15px;
+  margin-bottom:12px;
+}
+
+.order-header{
+  display:flex;
+  justify-content:space-between;
+  gap:10px;
+  flex-wrap:wrap;
+  margin-bottom:10px;
+}
+
+.order-id{
+  font-weight:800;
+}
+
+.order-info{
+  font-size:13px;
+  color:#555;
+  line-height:1.7;
+}
+
+.order-items{
+  background:#f8fafc;
+  padding:10px;
+  border-radius:9px;
+  margin:10px 0;
+  font-size:13px;
+  white-space:pre-wrap;
+}
+
+.order-bottom{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.total{
+  color:#15803d;
+  font-size:18px;
+  font-weight:800;
+}
+
+.empty{
+  text-align:center;
+  padding:25px;
+  color:#777;
+}
+
+.hidden{
+  display:none;
+}
+
+.loading{
+  text-align:center;
+  padding:20px;
+  color:#777;
+}
+
+.switch{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.switch input{
+  width:auto;
+}
+
+@media(max-width:650px){
+
+  .container{
+    padding:12px;
+  }
+
+  .grid{
+    grid-template-columns:1fr;
+  }
+
+  .full{
+    grid-column:auto;
+  }
+
+  .header{
+    align-items:flex-start;
+  }
+
+  .logo{
+    font-size:20px;
+  }
+
+  .product{
+    align-items:flex-start;
+    flex-wrap:wrap;
+  }
+
+  .product-info{
+    min-width:calc(100% - 95px);
+  }
+
+  .product-actions{
+    width:100%;
+  }
+
+  .product-actions button{
+    flex:1;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+  <div class="header">
+
+    <div>
+      <div class="logo">🛒 BKP Mart Admin</div>
+      <div class="email" id="adminEmail">
+        Checking login...
+      </div>
+    </div>
+
+    <button class="logout" onclick="logout()">
+      Logout
+    </button>
+
+  </div>
+
+</header>
+
+
+<main class="container">
+
+<div id="message" class="message"></div>
+
+
+<!-- DELIVERY SETTINGS -->
+
+<section class="section">
+
+<h2>🚚 Delivery Settings</h2>
+
+<div class="grid">
+
+<div>
+<label>Delivery Charge (₹)</label>
+<input
+type="number"
+id="deliveryCharge"
+min="0"
+placeholder="40">
+</div>
+
+<div>
+<label>Free Delivery Above (₹)</label>
+<input
+type="number"
+id="freeDeliveryAbove"
+min="0"
+placeholder="499">
+</div>
+
+<div class="full">
+
+<div class="switch">
+
+<input
+type="checkbox"
+id="freeDeliveryEnabled">
+
+<label for="freeDeliveryEnabled">
+Enable Free Delivery
+</label>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="actions">
+
+<button
+class="btn green"
+onclick="saveSettings()">
+
+Save Delivery Settings
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- ADD PRODUCT -->
+
+<section class="section">
+
+<h2>➕ Add Product</h2>
+
+<div class="grid">
+
+<div class="full">
+
+<label>Product Name</label>
+
+<input
+id="addName"
+type="text"
+placeholder="Product name">
+
+</div>
+
+
+<div class="full">
+
+<label>Description</label>
+
+<textarea
+id="addDescription"
+placeholder="Product description"></textarea>
+
+</div>
+
+
+<div>
+
+<label>Category</label>
+
+<select id="addCategory">
+
+<option value="">Select Category</option>
+<option>Grocery</option>
+<option>Biscuits</option>
+<option>Beverages</option>
+<option>Edible Oils</option>
+<option>Dals & Pulses</option>
+<option>Personal Care</option>
+<option>Oral Care</option>
+<option>Other</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Price (₹)</label>
+
+<input
+id="addPrice"
+type="number"
+min="0"
+placeholder="99">
+
+</div>
+
+
+<div>
+
+<label>MRP (₹)</label>
+
+<input
+id="addMrp"
+type="number"
+min="0"
+placeholder="120">
+
+</div>
+
+
+<div>
+
+<label>Stock</label>
+
+<input
+id="addStock"
+type="number"
+min="0"
+placeholder="20">
+
+</div>
+
+
+<div class="full">
+
+<label>Product Image</label>
+
+<input
+id="addImage"
+type="file"
+accept="image/*">
+
+</div>
+
+</div>
+
+
+<div class="actions">
+
+<button
+id="addBtn"
+class="btn green"
+onclick="addProduct()">
+
+Add Product
+
+</button>
+
+<button
+class="btn gray"
+onclick="clearAdd()">
+
+Clear
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- EDIT PRODUCT -->
+
+<section
+id="editSection"
+class="section hidden">
+
+<h2>✏️ Edit Product</h2>
+
+<input
+type="hidden"
+id="editId">
+
+
+<div class="grid">
+
+<div class="full">
+
+<label>Product Name</label>
+
+<input id="editName">
+
+</div>
+
+
+<div class="full">
+
+<label>Description</label>
+
+<textarea id="editDescription"></textarea>
+
+</div>
+
+
+<div>
+
+<label>Category</label>
+
+<select id="editCategory">
+
+<option value="">Select Category</option>
+<option>Grocery</option>
+<option>Biscuits</option>
+<option>Beverages</option>
+<option>Edible Oils</option>
+<option>Dals & Pulses</option>
+<option>Personal Care</option>
+<option>Oral Care</option>
+<option>Other</option>
+
+</select>
+
+</div>
+
+
+<div>
+
+<label>Price (₹)</label>
+
+<input
+id="editPrice"
+type="number"
+min="0">
+
+</div>
+
+
+<div>
+
+<label>MRP (₹)</label>
+
+<input
+id="editMrp"
+type="number"
+min="0">
+
+</div>
+
+
+<div>
+
+<label>Stock</label>
+
+<input
+id="editStock"
+type="number"
+min="0">
+
+</div>
+
+
+<div class="full">
+
+<label>New Image (Optional)</label>
+
+<input
+id="editImage"
+type="file"
+accept="image/*">
+
+</div>
+
+</div>
+
+
+<div class="actions">
+
+<button
+id="updateBtn"
+class="btn green"
+onclick="updateProduct()">
+
+Update Product
+
+</button>
+
+<button
+class="btn gray"
+onclick="cancelEdit()">
+
+Cancel
+
+</button>
+
+</div>
+
+</section>
+
+
+
+<!-- PRODUCTS -->
+
+<section class="section">
+
+<h2>📦 Products</h2>
+
+<input
+id="productSearch"
+class="search"
+type="search"
+placeholder="Search products...">
+
+<div id="productsList">
+
+<div class="loading">
+Loading products...
+</div>
+
+</div>
+
+</section>
+
+
+
+<!-- ORDERS -->
+
+<section class="section">
+
+<h2>🛍️ Orders</h2>
+
+<div id="ordersList">
+
+<div class="loading">
+Loading orders...
+</div>
+
+</div>
+
+</section>
+
+
+</main>
+
+
+<script>
+
+/* =========================
+   SUPABASE
+========================= */
+
+const SUPABASE_URL =
+"https://vtjxxpuhkylwsddgnkav.supabase.co";
+
+const SUPABASE_KEY =
+"sb_publishable_MkVBcTXqwhlesjtRg-hJtQ_UVfoMyeE";
+
+const db =
+supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+/* =========================
+   ADMIN UID
+========================= */
+
+const ADMIN_UID =
+"11c9a483-8426-4942-b16f-d60b9c5422a2";
+
+
+/* =========================
+   AUTH CHECK
+========================= */
+
+async function checkAuth(){
+
+const {
+data:{session},
+error
+} = await db.auth.getSession();
+
+if(error || !session){
+
+window.location.replace(
+"admin-login.html"
+);
+
+return false;
+}
+
+
+if(session.user.id !== ADMIN_UID){
+
+await db.auth.signOut();
+
+window.location.replace(
+"admin-login.html"
+);
+
+return false;
+}
+
+
+document.getElementById(
+"adminEmail"
+).textContent =
+session.user.email || "Admin";
+
+
+return true;
+
+}
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+async function logout(){
+
+await db.auth.signOut();
+
+window.location.replace(
+"admin-login.html"
+);
+
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+let messageTimer;
+
+function showMessage(text,type){
+
+const box =
+document.getElementById("message");
+
+box.textContent = text;
+
+box.className =
+"message " + type;
+
+clearTimeout(messageTimer);
+
+messageTimer =
+setTimeout(function(){
+
+box.className =
+"message";
+
+},5000);
+
+}
+
+
+/* =========================
+   ESCAPE
+========================= */
+
+function escapeHTML(value){
+
+return String(value ?? "")
+.replace(/&/g,"&amp;")
+.replace(/</g,"&lt;")
+.replace(/>/g,"&gt;")
+.replace(/"/g,"&quot;")
+.replace(/'/g,"&#039;");
+
+}
+
+
+function escapeAttribute(value){
+
+return escapeHTML(value);
+
+}
+
+
+/* =========================
+   SETTINGS
+========================= */
+
+async function loadSettings(){
+
+const {
+data,
+error
+} = await db
+.from("settings")
+.select("*")
+.limit(1)
+.maybeSingle();
+
+
+if(error){
+
+showMessage(
+"Settings load nahi hui: " +
+error.message,
+"error"
+);
+
+return;
+}
+
+
+if(data){
+
+document.getElementById(
+"deliveryCharge"
+).value =
+data.delivery_charge ?? 40;
+
+document.getElementById(
+"freeDeliveryAbove"
+).value =
+data.free_delivery_above ?? 499;
+
+document.getElementById(
+"freeDeliveryEnabled"
+).checked =
+data.free_delivery_enabled ?? true;
+
+}
+
+}
+
+
+async function saveSettings(){
+
+const deliveryCharge =
+Number(
+document.getElementById(
+"deliveryCharge"
+).value
+);
+
+const freeDeliveryAbove =
+Number(
+document.getElementById(
+"freeDeliveryAbove"
+).value
+);
+
+const freeDeliveryEnabled =
+document.getElementById(
+"freeDeliveryEnabled"
+).checked;
+
+
+const {
+data:existing,
+error:findError
+} = await db
+.from("settings")
+.select("id")
+.limit(1)
+.maybeSingle();
+
+
+if(findError){
+
+showMessage(
+findError.message,
+"error"
+);
+
+return;
+}
+
+
+let result;
+
+
+if(existing){
+
+result =
+await db
+.from("settings")
+.update({
+
+delivery_charge:
+deliveryCharge,
+
+free_delivery_enabled:
+freeDeliveryEnabled,
+
+free_delivery_above:
+freeDeliveryAbove
+
+})
+.eq("id",existing.id);
+
+}else{
+
+result =
+await db
+.from("settings")
+.insert({
+
+delivery_charge:
+deliveryCharge,
+
+free_delivery_enabled:
+freeDeliveryEnabled,
+
+free_delivery_above:
+freeDeliveryAbove
+
+});
+
+}
+
+
+if(result.error){
+
+showMessage(
+result.error.message,
+"error"
+);
+
+return;
+}
+
+
+showMessage(
+"Delivery settings saved.",
+"success"
+);
+
+}
+
+
+/* =========================
+   IMAGE UPLOAD
+========================= */
+
+async function uploadImage(file){
+
+if(!file){
+return null;
+}
+
+
+const extension =
+file.name
+.split(".")
+.pop()
+.toLowerCase();
+
+
+const filename =
+"product-" +
+Date.now() +
+"-" +
+Math.random()
+.toString(36)
+.substring(2,8) +
+"." +
+extension;
+
+
+const {
+error
+} =
+await db.storage
+.from("product-images")
+.upload(
+filename,
+file,
+{
+upsert:false
+}
+);
+
+
+if(error){
+throw error;
+}
+
+
+const {
+data
+} =
+db.storage
+.from("product-images")
+.getPublicUrl(
+filename
+);
+
+
+return data.publicUrl;
+
+}
+
+
+/* =========================
+   ADD PRODUCT
+========================= */
+
+async function addProduct(){
+
+const btn =
+document.getElementById(
+"addBtn"
+);
+
+
+const name =
+document.getElementById(
+"addName"
+).value.trim();
+
+const description =
+document.getElementById(
+"addDescription"
+).value.trim();
+
+const category =
+document.getElementById(
+"addCategory"
+).value;
+
+const price =
+Number(
+document.getElementById(
+"addPrice"
+).value
+);
+
+const mrp =
+Number(
+document.getElementById(
+"addMrp"
+).value
+);
+
+const stock =
+Number(
+document.getElementById(
+"addStock"
+).value
+);
+
+const imageFile =
+document.getElementById(
+"addImage"
+).files[0];
+
+
+if(!name ||
+!category ||
+!Number.isFinite(price) ||
+!Number.isFinite(mrp) ||
+!Number.isFinite(stock)){
+
+showMessage(
+"Product details complete karo.",
+"error"
+);
+
+return;
+}
+
+
+btn.disabled = true;
+btn.textContent =
+"Adding...";
+
+
+try{
+
+let image = null;
+
+
+if(imageFile){
+
+image =
+await uploadImage(
+imageFile
+);
+
+}
+
+
+const {
+error
+} =
+await db
+.from("products")
+.insert({
+
+Name:name,
+
+Description:
+description,
+
+category:
+category,
+
+price:
+price,
+
+mrp:
+mrp,
+
+image:
+image,
+
+stock:
+stock
+
+});
+
+
+if(error){
+throw error;
+}
+
+
+showMessage(
+"Product added successfully.",
+"success"
+);
+
+
+clearAdd();
+
+await loadProducts();
+
+
+}catch(error){
+
+showMessage(
+error.message,
+"error"
+);
+
+}finally{
+
+btn.disabled = false;
+
+btn.textContent =
+"Add Product";
+
+}
+
+}
+
+
+function clearAdd(){
+
+document.getElementById(
+"addName"
+).value = "";
+
+document.getElementById(
+"addDescription"
+).value = "";
+
+document.getElementById(
+"addCategory"
+).value = "";
+
+document.getElementById(
+"addPrice"
+).value = "";
+
+document.getElementById(
+"addMrp"
+).value = "";
+
+document.getElementById(
+"addStock"
+).value = "";
+
+document.getElementById(
+"addImage"
+).value = "";
+
+}
+
+
+/* =========================
+   PRODUCTS
+========================= */
+
+let allProducts = [];
+
+
+async function loadProducts(){
+
+const box =
+document.getElementById(
+"productsList"
+);
+
+box.innerHTML =
+'<div class="loading">Loading products...</div>';
+
+
+const {
+data,
+error
+} =
+await db
+.from("products")
+.select("*");
+
+
+if(error){
+
+box.innerHTML =
+`<div class="empty">
+Products load nahi hue.<br>
+<small>${escapeHTML(error.message)}</small>
+</div>`;
+
+return;
+}
+
+
+allProducts =
+data || [];
+
+
+renderProducts(
+allProducts
+);
+
+}
+
+
+function renderProducts(products){
+
+const box =
+document.getElementById(
+"productsList"
+);
+
+
+if(!products.length){
+
+box.innerHTML =
+'<div class="empty">No products found.</div>';
+
+return;
+}
+
+
+box.innerHTML =
+products.map(function(product){
+
+const stock =
+Number(product.stock || 0);
+
+const stockClass =
+stock <= 5
+? "stock-low"
+: "stock-good";
+
+
+const image =
+product.image ||
+"https://via.placeholder.com/100?text=Product";
+
+
+return `
+
+<div class="product">
+
+<img
+src="${escapeAttribute(image)}"
+alt="${escapeAttribute(product.Name)}"
+onerror="this.src='https://via.placeholder.com/100?text=Product'"
+>
+
+<div class="product-info">
+
+<div class="product-name">
+${escapeHTML(product.Name)}
+</div>
+
+<div class="meta">
+
+Category:
+${escapeHTML(product.category || "-")}
+<br>
+
+Price:
+₹${Number(product.price || 0).toFixed(2)}
+
+&nbsp; | &nbsp;
+
+MRP:
+₹${Number(product.mrp || 0).toFixed(2)}
+
+<br>
+
+Stock:
+
+<span class="${stockClass}">
+${stock}
+</span>
+
+</div>
+
+</div>
+
+<div class="product-actions">
+
+<button
+class="btn orange"
+onclick="openEdit('${escapeAttribute(product.id)}')">
+
+Edit
+
+</button>
+
+<button
+class="btn red"
+onclick="deleteProduct('${escapeAttribute(product.id)}')">
+
+Delete
+
+</button>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =========================
+   PRODUCT SEARCH
+========================= */
+
+document
+.getElementById("productSearch")
+.addEventListener(
+"input",
+function(){
+
+const q =
+this.value
+.trim()
+.toLowerCase();
+
+
+if(!q){
+
+renderProducts(
+allProducts
+);
+
+return;
+}
+
+
+const filtered =
+allProducts.filter(
+function(product){
+
+return (
+
+String(
+product.Name || ""
+)
+.toLowerCase()
+.includes(q)
+
+||
+
+String(
+product.category || ""
+)
+.toLowerCase()
+.includes(q)
+
+||
+
+String(
+product.Description || ""
+)
+.toLowerCase()
+.includes(q)
+
+);
+
+});
+
+
+renderProducts(
+filtered
+);
+
+});
+
+
+/* =========================
+   EDIT PRODUCT
+========================= */
+
+function openEdit(id){
+
+const product =
+allProducts.find(
+function(item){
+
+return String(item.id) ===
+String(id);
+
+});
+
+
+if(!product){
+
+return;
+}
+
+
+document.getElementById(
+"editSection"
+).classList.remove(
+"hidden"
+);
+
+
+document.getElementById(
+"editId"
+).value =
+product.id;
+
+document.getElementById(
+"editName"
+).value =
+product.Name || "";
+
+document.getElementById(
+"editDescription"
+).value =
+product.Description || "";
+
+document.getElementById(
+"editCategory"
+).value =
+product.category || "";
+
+document.getElementById(
+"editPrice"
+).value =
+product.price ?? "";
+
+document.getElementById(
+"editMrp"
+).value =
+product.mrp ?? "";
+
+document.getElementById(
+"editStock"
+).value =
+product.stock ?? "";
+
+document.getElementById(
+"editImage"
+).value = "";
+
+
+document.getElementById(
+"editSection"
+).scrollIntoView({
+behavior:"smooth"
+});
+
+}
+
+
+function cancelEdit(){
+
+document.getElementById(
+"editSection"
+).classList.add(
+"hidden"
+);
+
+}
+
+
+/* =========================
+   UPDATE PRODUCT
+========================= */
+
+async function updateProduct(){
+
+const btn =
+document.getElementById(
+"updateBtn"
+);
+
+
+const id =
+document.getElementById(
+"editId"
+).value;
+
+const name =
+document.getElementById(
+"editName"
+).value.trim();
+
+const description =
+document.getElementById(
+"editDescription"
+).value.trim();
+
+const category =
+document.getElementById(
+"editCategory"
+).value;
+
+const price =
+Number(
+document.getElementById(
+"editPrice"
+).value
+);
+
+const mrp =
+Number(
+document.getElementById(
+"editMrp"
+).value
+);
+
+const stock =
+Number(
+document.getElementById(
+"editStock"
+).value
+);
+
+const imageFile =
+document.getElementById(
+"editImage"
+).files[0];
+
+
+btn.disabled = true;
+btn.textContent =
+"Updating...";
+
+
+try{
+
+const updateData = {
+
+Name:name,
+
+Description:
+description,
+
+category:
+category,
+
+price:
+price,
+
+mrp:
+mrp,
+
+stock:
+stock
+
+};
+
+
+if(imageFile){
+
+updateData.image =
+await uploadImage(
+imageFile
+);
+
+}
+
+
+const {
+error
+} =
+await db
+.from("products")
+.update(updateData)
+.eq("id",id);
+
+
+if(error){
+throw error;
+}
+
+
+showMessage(
+"Product updated successfully.",
+"success"
+);
+
+
+cancelEdit();
+
+await loadProducts();
+
+
+}catch(error){
+
+showMessage(
+error.message,
+"error"
+);
+
+}finally{
+
+btn.disabled = false;
+
+btn.textContent =
+"Update Product";
+
+}
+
+}
+
+
+/* =========================
+   DELETE
+========================= */
+
+async function deleteProduct(id){
+
+const product =
+allProducts.find(
+function(item){
+
+return String(item.id) ===
+String(id);
+
+});
+
+
+if(!product){
+return;
+}
+
+
+if(!confirm(
+"Delete " +
+product.Name +
+"?"
+)){
+
+return;
+}
+
+
+const {
+error
+} =
+await db
+.from("products")
+.delete()
+.eq("id",id);
+
+
+if(error){
+
+showMessage(
+error.message,
+"error"
+);
+
+return;
+}
+
+
+showMessage(
+"Product deleted.",
+"success"
+);
+
+
+await loadProducts();
+
+}
+
+
+/* =========================
+   ORDERS
+========================= */
+
+async function loadOrders(){
+
+const box =
+document.getElementById(
+"ordersList"
+);
+
+
+box.innerHTML =
+'<div class="loading">Loading orders...</div>';
+
+
+/*
+IMPORTANT:
+No created_at ordering here.
+*/
+
+const {
+data,
+error
+} =
+await db
+.from("orders")
+.select("*");
+
+
+if(error){
+
+box.innerHTML = `
+
+<div class="empty">
+
+❌ Orders load nahi ho paaye.
+
+<br><br>
+
+<strong>Supabase Error:</strong>
+
+<br>
+
+${escapeHTML(
+error.message
+)}
+
+<br><br>
+
+<small>
+
+Code:
+${escapeHTML(
+error.code || "-"
+)}
+
+</small>
+
+</div>
+
+`;
+
+console.error(
+"ORDERS ERROR:",
+error
+);
+
+return;
+}
+
+
+if(!data || data.length === 0){
+
+box.innerHTML =
+'<div class="empty">No orders yet.</div>';
+
+return;
+}
+
+
+box.innerHTML =
+data.map(function(order){
+
+let itemsText = "";
+
+
+try{
+
+const items =
+typeof order.items ===
+"string"
+
+? JSON.parse(
+order.items
+)
+
+: order.items;
+
+
+if(Array.isArray(items)){
+
+itemsText =
+items.map(function(item){
+
+return (
+item.Name ||
+item.name ||
+"Product"
+) +
+" × " +
+(
+item.quantity ||
+1
+);
+
+}).join("\n");
+
+}else{
+
+itemsText =
+JSON.stringify(items);
+
+}
+
+}catch{
+
+itemsText =
+String(
+order.items || ""
+);
+
+}
+
+
+const orderId =
+order.id ||
+order.order_id ||
+order.uuid ||
+"N/A";
+
+
+return `
+
+<div class="order">
+
+<div class="order-header">
+
+<div class="order-id">
+
+Order #${escapeHTML(
+orderId
+)}
+
+</div>
+
+<div>
+
+${escapeHTML(
+order.status ||
+"pending"
+)}
+
+</div>
+
+</div>
+
+
+<div class="order-info">
+
+<strong>Customer:</strong>
+${escapeHTML(
+order.customer_name || "-"
+)}
+
+<br>
+
+<strong>Mobile:</strong>
+${escapeHTML(
+order.customer_mobile || "-"
+)}
+
+<br>
+
+<strong>Address:</strong>
+${escapeHTML(
+order.customer_address || "-"
+)}
+
+<br>
+
+<strong>City:</strong>
+${escapeHTML(
+order.customer_city || "-"
+)}
+
+<br>
+
+<strong>Pincode:</strong>
+${escapeHTML(
+order.customer_pincode || "-"
+)}
+
+</div>
+
+
+<div class="order-items">
+
+${escapeHTML(
+itemsText ||
+"No item details"
+)}
+
+</div>
+
+
+<div class="order-bottom">
+
+<div class="total">
+
+₹${Number(
+order.total_amount || 0
+).toFixed(2)}
+
+</div>
+
+
+<select
+onchange="changeOrderStatus('${escapeAttribute(orderId)}',this.value)"
+>
+
+<option
+value="pending"
+${order.status === "pending"
+? "selected"
+: ""}>
+Pending
+</option>
+
+<option
+value="confirmed"
+${order.status === "confirmed"
+? "selected"
+: ""}>
+Confirmed
+</option>
+
+<option
+value="out_for_delivery"
+${order.status === "out_for_delivery"
+? "selected"
+: ""}>
+Out for Delivery
+</option>
+
+<option
+value="delivered"
+${order.status === "delivered"
+? "selected"
+: ""}>
+Delivered
+</option>
+
+<option
+value="cancelled"
+${order.status === "cancelled"
+? "selected"
+: ""}>
+Cancelled
+</option>
+
+</select>
+
+</div>
+
+</div>
+
+`;
+
+}).join("");
+
+}
+
+
+/* =========================
+   ORDER STATUS
+========================= */
+
+async function changeOrderStatus(
+orderId,
+status
+){
+
+const {
+error
+} =
+await db
+.from("orders")
+.update({
+status:status
+})
+.eq("id",orderId);
+
+
+if(error){
+
+showMessage(
+"Status update failed: " +
+error.message,
+"error"
+);
+
+return;
+}
+
+
+showMessage(
+"Order status updated.",
+"success"
+);
+
+}
+
+
+/* =========================
+   AUTH LISTENER
+========================= */
+
+db.auth.onAuthStateChange(
+function(event,session){
+
+if(
+event === "SIGNED_OUT" ||
+!session
+){
+
+window.location.replace(
+"admin-login.html"
+);
+
+}
+
+});
+
+
+/* =========================
+   START
+========================= */
+
+(async function(){
+
+const loggedIn =
+await checkAuth();
+
+
+if(!loggedIn){
+return;
+}
+
+
+await loadSettings();
+
+await loadProducts();
+
+await loadOrders();
+
+})();
+
+</script>
+
+</body>
+</html>
